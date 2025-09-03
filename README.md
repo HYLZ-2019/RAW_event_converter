@@ -6,6 +6,8 @@
 
 	用来读取Prophesee相机产生的 [RAW格式](https://docs.prophesee.ai/stable/data/file_formats/raw.html) event，并转为更方便的其他格式（如csv、npz、h5）。
 
+	**更新**：现在也支持读取 [AEDAT3.1格式](https://docs.inivation.com/software/software-advanced-usage/file-formats/aedat-3.1.html) 的.aedat文件了。这是一种比较老的aedat格式，由DVS128等型号产出，目前用dv-processing库无法读取。
+
 2. 为什么不用官方的Metavision库？
 
 	因为我不想配环境。
@@ -36,12 +38,13 @@
 
 基本使用方法：
 ```bash
-python evt3_reader.py input_file.raw
+python event_reader.py input_file.raw
+python event_reader.py input_file.aedat
 ```
 
 完整的命令行参数说明：
 ```bash
-python evt3_reader.py input_file.raw [选项]
+python event_reader.py input_file.raw [选项]
 ```
 
 **可用选项：**
@@ -57,13 +60,13 @@ python evt3_reader.py input_file.raw [选项]
 
 ```bash
 # 只查看统计信息，不保存文件。
-python evt3_reader.py recording.raw --stats-only
+python event_reader.py recording.raw --stats-only
 
 # 输出到CSV格式。EXT_TRIGGER事件通常被用于时间同步等，H5格式和NPZ格式都会把event和trigger事件一起保存，但CSV格式需要把它们分成两个文件分别保存。
-python evt3_reader.py recording.raw --output-csv events.csv --output-trigger-csv triggers.csv
+python event_reader.py recording.raw --output-csv events.csv --output-trigger-csv triggers.csv
 
 # 只读取前1000000个事件，输出到多种格式并保存可视化视频。
-python evt3_reader.py recording.raw --max-events 1000000 --output-h5 events.h5 --output-npz events.npz --output-video events.mp4
+python event_reader.py recording.raw --max-events 1000000 --output-h5 events.h5 --output-npz events.npz --output-video events.mp4
 ```
 
 如果你的程序读着读着闪退了，这大概率是数据太多爆内存了。你可以减小`--max-event`试试。（这时你可能想问，我还是想读取整个RAW文件，怎么办？——你可以换一台内存更大的电脑。或者自己找个AI再优化一下这个代码。）

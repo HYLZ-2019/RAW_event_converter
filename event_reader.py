@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import argparse
 from src.visualize_events import events_to_video
 from src.read_raw import read_evt3_events
+from src.read_aedat import read_aedat3_events
 from src.write_formats import save_events_to_csv, save_trigger_events_to_csv, save_events_to_npz, save_events_to_h5
 
 def print_event_statistics(events: np.ndarray, trigger_events: np.ndarray, header: Dict[str, str]):
@@ -56,8 +57,8 @@ def print_event_statistics(events: np.ndarray, trigger_events: np.ndarray, heade
 
 def main():
 	"""主函数"""
-	parser = argparse.ArgumentParser(description='EVT3 Event Data Reader')
-	parser.add_argument('input_file', help='输入的RAW文件路径')
+	parser = argparse.ArgumentParser(description='Event Data Reader for RAW and AEDAT3 formats')
+	parser.add_argument('input_file', help='输入文件路径 (支持 .raw 和 .aedat 格式)')
 	parser.add_argument('--max-events', type=int, help='最大读取事件数量')
 	parser.add_argument('--output-csv', help='输出CSV文件路径')
 	parser.add_argument('--output-trigger-csv', help='输出触发事件CSV文件路径')
@@ -69,9 +70,17 @@ def main():
 	args = parser.parse_args()
 	
 	try:
-		# 读取事件数据
+		# 根据文件扩展名选择读取函数
+		file_ext = args.input_file.lower().split('.')[-1]
 		print(f"正在读取文件: {args.input_file}")
-		events, trigger_events, header = read_evt3_events(args.input_file, args.max_events)
+		print(f"检测到文件格式: {file_ext.upper()}")
+		
+		if file_ext == 'raw':
+			events, trigger_events, header = read_evt3_events(args.input_file, args.max_events)
+		elif file_ext == 'aedat':
+			events, trigger_events, header = read_aedat3_events(args.input_file, args.max_events)
+		else:
+			raise ValueError(f"不支持的文件格式: .{file_ext}。支持的格式: .raw, .aedat")
 		
 		# 打印统计信息
 		print_event_statistics(events, trigger_events, header)
@@ -100,7 +109,12 @@ def main():
 			
 			# 默认保存为NPZ格式
 			if not args.output_csv and not args.output_npz:
-				default_output = args.input_file.replace('.raw', '_events.npz')
+				if file_ext == 'raw':
+					default_output = args.input_file.replace('.raw', '_events.npz')
+				elif file_ext == 'aedat':
+					default_output = args.input_file.replace('.aedat', '_events.npz')
+				else:
+					default_output = args.input_file + '_events.npz'
 				save_events_to_npz(events, trigger_events, header, default_output)
 		
 	except Exception as e:

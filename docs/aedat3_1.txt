@@ -1,0 +1,38 @@
+============
+AEDAT format
+============
+
+DVS data is stored in the AEDAT 3.1 file format as Polarity Events.
+
+For example:
+
+[header] [events] [header] [events] [header] [events] ... [header] [events]
+
+The header format is:
+
+uint16_t eventType
+uint16_t eventSource
+uint32_t eventSize
+uint32_t eventTSOffset
+uint32_t eventTSOverflow
+uint32_t eventCapacity
+uint32_t eventNumber
+uint32_t eventValid
+
+An events block contains eventNumber events.
+
+Each event is:
+
+uint32_t data
+uint32_t timestamp
+
+uint32_t data contains the x, y coordinates and polarity of the events.
+These values can be retrieved with the following binary operations:
+
+x = ( data >> 17 ) & 0x00001FFF
+y = ( data >> 2 ) & 0x00001FFF
+polarity = ( data >> 1 ) & 0x00000001
+
+To learn more about DVS128 data see
+
+https://inilabs.com/support/software/fileformat/
