@@ -108,7 +108,7 @@ def main():
 				print(f"视频已保存到: {video_file}")
 			
 			# 默认保存为NPZ格式
-			if not args.output_csv and not args.output_npz:
+			if not args.output_csv and not args.output_npz and not args.output_h5:
 				if file_ext == 'raw':
 					default_output = args.input_file.replace('.raw', '_events.npz')
 				elif file_ext == 'aedat':
