@@ -295,6 +295,8 @@ def read_evt3_events(filename: str, max_events: Optional[int] = None) -> Tuple[n
 		raise ValueError("Header中缺少format信息")
 	
 	encoding_format, height, width = parse_format_from_header(header)
+	header["height"] = height
+	header["width"] = width
 	
 	if not encoding_format.startswith('EVT3'):
 		raise ValueError(f"不支持的编码格式: {encoding_format}")
